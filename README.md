@@ -7,3 +7,4 @@ A batch move exporter for the the activity site movescount.com (for suunto devic
 4. Select the moves you want to export
 5. Hover over the `Tools` dropdown in the menu below the calendar and select the export format you want to use
 6. Confirm the dialog box
+7. If only a single file is downloaded, allow pop-ups for www.movescount.com
