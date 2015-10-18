@@ -129,6 +129,61 @@ function exportMoves(format) {
     }
 }
 
+function deleteMoves() {
+    var moveIds = [];
+    var movesIndices = [];
+    var wins = [];
+    
+    var movesTmp = "";
+    var movesIndicesTmp = "";
+    var username = "";
+    
+    
+    movesTmp = getHashVar("moves");
+    movesIndicesTmp = getHashVar("move-indices");
+    
+    if (movesTmp != ""){
+        moveIds = movesTmp.split("+");
+        console.log("moves::> " + movesTmp);        
+    }else if (movesIndicesTmp != "" ){
+        console.log("move-indices::> " + movesIndicesTmp);
+        movesIndices = parseIndices(movesIndicesTmp);
+        username = $('.username span').text().split(" ")[1];
+
+        $.ajaxSetup({async: false});
+        $.get("/Move/MoveList?username="+username, function(AllMoves){
+            console.log(AllMoves);
+            movesIndices.forEach(function(selInd){
+                console.log(AllMoves.Data[selInd][0]);
+                moveIds.push(AllMoves.Data[selInd][0]);
+            });
+            
+            
+        
+        });
+        
+    }else {
+        $('a[data-id^="move-"] i.active').each(function() {
+            moveIds.push($(this).parent().attr('data-id').substring(5));
+        });
+    }
+
+    if (confirm("This will delete " + moveIds.length + " moves! Forever! No way to undo!")) {
+        _.each(moveIds, function(moveId) {
+            var urlstring = 'http://www.movescount.com/move/export?id=' + moveId + '&format=';
+            try {
+                $.post( "/move/delete", { id: moveId } );
+            } catch (err) {
+                window.alert("Error: " + err.toString);
+            }
+        });
+        // location.reload(true);
+    } else {
+        window.alert("Cancelled!");
+    }    
+}
+
+
 var formats = {
     GPX: 'gpx',
     KML: 'kml',
@@ -152,5 +207,15 @@ setInterval(function() {
             li.append(link);
             toolsItem.closest('li').before(li);
         });
+
+        var li = $('<li class="batchDelete"></li>');
+        var link = $('<a style="text-align: left;">Delete selected</a>');
+        link.click(function() {
+            deleteMoves();
+            return false; 
+        });
+        li.append(link);
+        toolsItem.closest('li').before(li);
+        
     }
 }, 1000);
